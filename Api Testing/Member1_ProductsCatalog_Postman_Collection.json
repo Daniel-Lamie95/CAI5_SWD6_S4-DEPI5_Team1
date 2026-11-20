@@ -1,0 +1,1213 @@
+{
+  "info": {
+    "_postman_id": "79c56260-5cbe-43e3-ad54-d10be67db829",
+    "name": "Member 1 - Products Catalog API Testing | Automation Exercise",
+    "description": "Comprehensive Postman Test Collection for Member 1 (Products Catalog Module) in the DEPI CAI5_SWD6_S4 project.\n\nCovers:\n1. API 1 - Get All Products List (GET /api/productsList)\n2. API 2 - Search Product (POST /api/searchProduct)\n3. Negative, Boundary Value, Security Injection, and Unsupported HTTP Method Testing.\n\nAutomated validations cover HTTP status codes, API responseCodes, JSON schemas, field data types, array lengths, unique identifiers, and business logic.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://automationexercise.com",
+      "type": "string",
+      "description": "Base URL for the Automation Exercise REST API"
+    }
+  ],
+  "item": [
+    {
+      "name": "Folder 1: API 1 – Products List",
+      "description": "Test suite for API 1: Retrieve all products list, validate response code, response body, products array, object schema, and ID uniqueness.",
+      "item": [
+        {
+          "name": "GET All Products - Status Code & Successful Response",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productsList",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productsList"
+              ]
+            },
+            "description": "Validates that GET /api/productsList returns HTTP 200 OK, acceptable response time, and responseCode 200 in the JSON body."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// 1. HTTP Status Code Validation",
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// 2. Performance / Response Time Validation",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});",
+                  "",
+                  "// 3. Parse JSON and validate responseCode",
+                  "pm.test(\"Response body contains responseCode 200\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an(\"object\");",
+                  "    pm.expect(jsonData.responseCode).to.eql(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET All Products - JSON Response Structure & Headers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productsList",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productsList"
+              ]
+            },
+            "description": "Validates JSON structure, root keys (responseCode and products), and notes Content-Type header quirk."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// 1. JSON parsing validation",
+                  "pm.test(\"Response is valid JSON\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "// 2. Root keys existence",
+                  "pm.test(\"Response contains required root keys: responseCode and products\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"responseCode\");",
+                  "    pm.expect(jsonData).to.have.property(\"products\");",
+                  "});",
+                  "",
+                  "// 3. Content-Type Header Inspection (Logged as Defect DEF-01 if text/html)",
+                  "pm.test(\"Inspect Content-Type Header\", function () {",
+                  "    const contentType = pm.response.headers.get(\"Content-Type\");",
+                  "    pm.expect(contentType).to.be.a(\"string\");",
+                  "    if (!contentType.includes(\"application/json\")) {",
+                  "        console.warn(\"[DEF-01] Known Quirk: Content-Type is '\" + contentType + \"' instead of 'application/json'\");",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET All Products - Products Array Validation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productsList",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productsList"
+              ]
+            },
+            "description": "Validates that 'products' is an array, is non-empty, and has expected catalog count."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Products is a non-empty array\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\");",
+                  "    pm.expect(jsonData.products.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "pm.test(\"Products catalog count matches expected baseline (34 items)\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.products.length).to.be.at.least(34);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET All Products - Product Fields & Schema Validation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productsList",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productsList"
+              ]
+            },
+            "description": "Validates that every single product object complies with the data contract schema: id (number), name (string), price (string), brand (string), and category (object)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"All products have valid schema and required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    const products = jsonData.products;",
+                  "    ",
+                  "    products.forEach(function (product, index) {",
+                  "        // Mandatory keys",
+                  "        pm.expect(product, `Product [${index}] keys`).to.have.all.keys(\"id\", \"name\", \"price\", \"brand\", \"category\");",
+                  "        ",
+                  "        // Data types",
+                  "        pm.expect(product.id, `Product [${index}].id type`).to.be.a(\"number\");",
+                  "        pm.expect(product.name, `Product [${index}].name type`).to.be.a(\"string\").and.not.empty;",
+                  "        pm.expect(product.price, `Product [${index}].price type`).to.be.a(\"string\").and.not.empty;",
+                  "        pm.expect(product.brand, `Product [${index}].brand type`).to.be.a(\"string\");",
+                  "        pm.expect(product.category, `Product [${index}].category type`).to.be.an(\"object\");",
+                  "        ",
+                  "        // Nested category structure",
+                  "        pm.expect(product.category).to.have.property(\"usertype\");",
+                  "        pm.expect(product.category.usertype).to.have.property(\"usertype\");",
+                  "        pm.expect(product.category.usertype.usertype).to.be.a(\"string\");",
+                  "        pm.expect(product.category).to.have.property(\"category\");",
+                  "        pm.expect(product.category.category).to.be.a(\"string\");",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET All Products - Unique Product IDs Validation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productsList",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productsList"
+              ]
+            },
+            "description": "Verifies that there are no duplicate product IDs across the entire catalog."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"All product IDs are unique (no duplicates)\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    const ids = jsonData.products.map(p => p.id);",
+                  "    const uniqueIds = new Set(ids);",
+                  "    pm.expect(uniqueIds.size, \"Unique ID count matches total products count\").to.eql(ids.length);",
+                  "});",
+                  "",
+                  "pm.test(\"All product IDs are positive integers\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    jsonData.products.forEach(p => {",
+                  "        pm.expect(p.id).to.be.above(0);",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET All Products - Known Product Data Integrity (Item ID 1)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/productsList",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productsList"
+              ]
+            },
+            "description": "Validates exact data values for reference product ID 1 (Blue Top)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Reference Product ID 1 has accurate catalog data\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    const item = jsonData.products.find(p => p.id === 1);",
+                  "    pm.expect(item, \"Product with ID 1 exists\").to.not.be.undefined;",
+                  "    pm.expect(item.name).to.eql(\"Blue Top\");",
+                  "    pm.expect(item.price).to.eql(\"Rs. 500\");",
+                  "    pm.expect(item.brand).to.eql(\"Polo\");",
+                  "    pm.expect(item.category.usertype.usertype).to.eql(\"Women\");",
+                  "    pm.expect(item.category.category).to.eql(\"Tops\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST To Products List - Unsupported HTTP Method",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/productsList",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productsList"
+              ]
+            },
+            "description": "Negative Test: Verify sending POST to /api/productsList is rejected with responseCode 405."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK (AE API architecture)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body contains responseCode 405 (Method Not Allowed)\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(405);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body contains proper error message\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql(\"This request method is not supported.\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Folder 2: API 2 – Search Product",
+      "description": "Test suite for API 2: Search product using POST /api/searchProduct with form-data parameter search_product. Validates positive searches, response structure, case-insensitivity, and no-match scenarios.",
+      "item": [
+        {
+          "name": "POST Search Product - Valid Keyword 'top'",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "top",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Searches for 'top' via form-data. Validates responseCode 200 and returned matching items."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"responseCode is 200\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns non-empty array of matching products\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\").that.is.not.empty;",
+                  "    pm.expect(jsonData.products.length).to.eql(14);",
+                  "});",
+                  "",
+                  "pm.test(\"Each returned product contains 'top' in its name (case-insensitive)\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    jsonData.products.forEach(p => {",
+                  "        pm.expect(p.name.toLowerCase()).to.include(\"top\");",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Search Product - Valid Keyword 'jean'",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "jean",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Searches for 'jean'. Validates responseCode 200 and matching items (3 items)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"responseCode is 200 and products returned\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(200);",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\").that.is.not.empty;",
+                  "    pm.expect(jsonData.products.length).to.eql(3);",
+                  "});",
+                  "",
+                  "pm.test(\"All returned items contain 'jean' in name\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    jsonData.products.forEach(p => {",
+                  "        pm.expect(p.name.toLowerCase()).to.include(\"jean\");",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Search Product - Exact Full Name 'Blue Top'",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "Blue Top",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Searches with exact product name 'Blue Top'. Verifies exact single product match."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Returns exactly one product matching 'Blue Top'\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(200);",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\").with.lengthOf(1);",
+                  "    pm.expect(jsonData.products[0].id).to.eql(1);",
+                  "    pm.expect(jsonData.products[0].name).to.eql(\"Blue Top\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Search Product - Case-Insensitivity Check 'TSHIRT'",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "TSHIRT",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Searches with uppercase 'TSHIRT' to confirm search is case-insensitive."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Case-insensitivity: uppercase 'TSHIRT' returns matches\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(200);",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\").that.is.not.empty;",
+                  "    pm.expect(jsonData.products.length).to.eql(6);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Search Product - Validate Product Schema in Search Results",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "dress",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Verifies that products returned in search results have full structural schema."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Search results adhere to product data contract\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\").that.is.not.empty;",
+                  "    jsonData.products.forEach((p, idx) => {",
+                  "        pm.expect(p, `Search item [${idx}]`).to.have.all.keys(\"id\", \"name\", \"price\", \"brand\", \"category\");",
+                  "        pm.expect(p.id).to.be.a(\"number\");",
+                  "        pm.expect(p.name).to.be.a(\"string\");",
+                  "        pm.expect(p.price).to.be.a(\"string\");",
+                  "        pm.expect(p.brand).to.be.a(\"string\");",
+                  "        pm.expect(p.category).to.be.an(\"object\");",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Search Product - No Matching Keyword 'xyz987nomatch'",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "xyz987nomatch",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Searches for non-existing product. Expects responseCode 200 and an empty products array []."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"responseCode is 200\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test(\"products array is empty when no matches are found\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\").that.is.empty;",
+                  "    pm.expect(jsonData.products.length).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Search Product - Missing search_product Parameter",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Negative Test: Missing required parameter. Verifies API rejects request with responseCode 400."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"responseCode is 400 (Bad Request)\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Proper error message returned\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql(\"Bad request, search_product parameter is missing in POST request.\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Folder 3: Boundary Value Testing",
+      "description": "Comprehensive boundary, security injection, input sanitation, and method unsupported testing.",
+      "item": [
+        {
+          "name": "Boundary - Empty search_product Parameter (\"\")",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Boundary Test: Evaluates behavior when search_product is present but empty. Notice: API returns responseCode 200 and dumps all 34 products (Logged as Defect DEF-03)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Expected according to strict spec vs Actual Defect DEF-03",
+                  "pm.test(\"Check Empty Search Handling [DEF-03: Returns all products instead of 400 or empty]\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(200);",
+                  "    // Server returns all 34 products",
+                  "    console.warn(\"[DEF-03] Actual Behavior: Empty search returned \" + jsonData.products.length + \" products.\");",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Boundary - Whitespace-Only Input (\"   \")",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "   ",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Boundary Test: Whitespace-only string. Verifies system treats it as literal spaces and returns 0 matches."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Whitespace-only search returns empty array (no false positives)\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(200);",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\").that.is.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Boundary - Single-Character Search Alphabetical ('a')",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "a",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Boundary Test: Single character search input ('a')."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Single character 'a' returns matching items (18 items)\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(200);",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\").with.lengthOf(18);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Boundary - Single-Character Search Numeric ('1')",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Boundary Test: Single numeric character ('1'). Verifies numeric search against product names."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK and returns 0 items for digit '1'\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(200);",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\").that.is.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Boundary - Long Search String (500 characters)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Boundary Test: Extremely long string (500 chars). Verifies buffer overflow resilience."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK and server handles long string safely\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(200);",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\").that.is.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Boundary - Special Characters ('!@#$%^&*()')",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "!@#$%^&*()",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Boundary Test: Special characters. Verifies proper string escaping."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Special characters handled safely without crashing\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(200);",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\").that.is.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unexpected Input - SQL Injection Payload (\"' OR '1'='1\")",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "' OR '1'='1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Security Test: SQL injection payload. Verifies query is parameterized and does not return unauthorized rows."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"SQL injection payload safely neutralized\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(200);",
+                  "    pm.expect(jsonData.products).to.be.an(\"array\").that.is.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unexpected Input - JSON Body instead of Form-Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"search_product\": \"top\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Negative Test: Sending raw JSON payload instead of form-data. Validates that server detects missing form parameter."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"JSON body is rejected with responseCode 400 (Requires form-data)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(400);",
+                  "    pm.expect(jsonData.message).to.eql(\"Bad request, search_product parameter is missing in POST request.\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unexpected Method - GET to searchProduct",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Negative Test: Unsupported GET method to /api/searchProduct."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"GET method to searchProduct is rejected with 405\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(405);",
+                  "    pm.expect(jsonData.message).to.eql(\"This request method is not supported.\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unexpected Method - PUT to searchProduct",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "top",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Negative Test: Unsupported PUT method to /api/searchProduct."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"PUT method to searchProduct is rejected with 405\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(405);",
+                  "    pm.expect(jsonData.message).to.eql(\"This request method is not supported.\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unexpected Method - DELETE to searchProduct",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "top",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/searchProduct",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Negative Test: Unsupported DELETE method to /api/searchProduct."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"DELETE method to searchProduct is rejected with 405\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.responseCode).to.eql(405);",
+                  "    pm.expect(jsonData.message).to.eql(\"This request method is not supported.\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
