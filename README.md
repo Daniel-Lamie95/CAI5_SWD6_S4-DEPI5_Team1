@@ -62,11 +62,11 @@ CAI5_SWD6_S4-DEPI5_Team1/
 | Team Member | Assignee | Assigned Module | Scope & Endpoints | Status |
 | :---: | :---: | :---: | :--- | :---: |
 | **Member 1** | **Rehab Adel** | **Products Catalog** | `GET /api/productsList`<br>`POST /api/searchProduct`<br>+ Boundary, Security & Negative Tests | **✅ Completed (100%)** |
-| **Member 2** | — | **Brands Directory** | `GET /api/brandsList`<br>`PUT /api/brandsList` | ⏳ Pending |
-| **Member 3** | — | **Product Search** | `POST /api/searchProduct` (Keywords, SQL Injection) | ⏳ Pending |
+| **Member 2** | **Angelina** | **Brands Directory** | `GET /api/brandsList`<br>`PUT /api/brandsList` | ⏳ Pending |
+| **Member 3** | **Gerges** | **Product Search** | `POST /api/searchProduct` (Keywords, SQL Injection) | ⏳ Pending |
 | **Member 4** | **Daniel Adel** | **User Authentication** | `POST /api/verifyLogin`<br>`DELETE /api/verifyLogin` | 🔄 In Progress |
 | **Member 5** | **Ziad Omar** | **Registration & Deletion** | `POST /api/createAccount`<br>`DELETE /api/deleteAccount` | 🔄 In Progress |
-| **Member 6** | — | **Account Updates & Lookup**| `PUT /api/updateAccount`<br>`GET /api/getUserDetailByEmail` | ⏳ Pending |
+| **Member 6** | **Ahmed** | **Account Updates & Lookup**| `PUT /api/updateAccount`<br>`GET /api/getUserDetailByEmail` | ⏳ Pending |
 
 ---
 
