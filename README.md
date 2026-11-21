@@ -56,7 +56,7 @@ CAI5_SWD6_S4-DEPI5_Team1/
 
 | Team Member | Assignee | Assigned Module | Scope & Endpoints | Status |
 | :---: | :---: | :---: | :--- | :---: |
-| **Member 1** | **Rehab Adel** | **Products Catalog** | `GET /api/productsList`<br>`POST /api/searchProduct`<br>+ Boundary, Security & Negative Tests | **✅ Completed** |
+| **Member 1** | **Rehab Adel** | **Products Catalog** | `GET /api/productsList`<br>`POST /api/searchProduct`<br>+ Boundary | **✅ Completed** |
 | **Member 2** | **Angelina** | **Brands Directory** | `GET /api/brandsList`<br>`PUT /api/brandsList` | **✅ Completed** |
 | **Member 3** | **Gerges** | **Product Search** | `POST /api/searchProduct` (Keywords, SQL Injection) | **✅ Completed** |
 | **Member 4** | **Daniel Adel** | **User Authentication** | `POST /api/verifyLogin`<br>`DELETE /api/verifyLogin` | **✅ Completed** |
